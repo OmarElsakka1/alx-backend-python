@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" Testing client Module"""
+""" Testing client Module """
 
 from client import GithubOrgClient
 from fixtures import TEST_PAYLOAD
@@ -10,7 +10,7 @@ from unittest.mock import patch, PropertyMock, Mock
 
 
 class TestGithubOrgClient(unittest.TestCase):
-    """ Class for Testing Github Org Client """
+    """ Testing Class Github Org Client """
 
     @parameterized.expand([
         ('google'),
@@ -18,13 +18,14 @@ class TestGithubOrgClient(unittest.TestCase):
     ])
     @patch('client.get_json')
     def test_org(self, input, mock):
-        """Testing that GithubOrgClient.org returns the correct value"""
+        """Test that GithubOrgClient.org returns the correct value"""
         test_class = GithubOrgClient(input)
         test_class.org()
         mock.assert_called_once_with(f'https://api.github.com/orgs/{input}')
 
     def test_public_repos_url(self):
         """ Testing that the result of _public_repos_url is as expected
+        based on the mocked payload
         """
         with patch('client.GithubOrgClient.org',
                    new_callable=PropertyMock) as mock:
@@ -70,11 +71,17 @@ class TestGithubOrgClient(unittest.TestCase):
     TEST_PAYLOAD
 )
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    """ Class for Integration test of fixtures """
+    """ Class for Integration testing of fixtures """
 
     @classmethod
     def setUpClass(cls):
-        """A class method called before tests"""
+        """A class method that is called before tests in an individual class are run"""
+        # def my_side_effect(url):
+        #     """ Side Effect function for test """
+        #     test_url = "https://api.github.com/orgs/google"
+        #     if url == test_url:
+        #         return cls.org_payload
+        #     return cls.repos_payload
 
         config = {'return_value.json.side_effect':
                   [
@@ -87,7 +94,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         cls.mock = cls.get_patcher.start()
 
     def test_public_repos(self):
-        """ Integration test for public repos"""
+        """ Integration testing for public repos"""
         test_class = GithubOrgClient("google")
 
         self.assertEqual(test_class.org, self.org_payload)
@@ -97,7 +104,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         self.mock.assert_called()
 
     def test_public_repos_with_license(self):
-        """ Integration testting for public repos with License """
+        """ Integration testing for public repos with License """
         test_class = GithubOrgClient("google")
 
         self.assertEqual(test_class.public_repos(), self.expected_repos)
@@ -108,5 +115,5 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """A class method called after tests"""
+        """A class method called after tests in an individual class that have run"""
         cls.get_patcher.stop()
